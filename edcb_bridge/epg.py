@@ -140,7 +140,8 @@ class EpgSnapshot:
     services_by_id: dict[tuple[int, int], Service] = field(default_factory=dict)
     # (onid, sid) -> mirakc の番組情報のリスト (開始時刻順)
     programs: dict[tuple[int, int], list[dict[str, Any]]] = field(default_factory=dict)
-    fetched_at: float = 0.0
+    # time.monotonic() の取得時刻。None は未取得 (monotonic() は起動直後だと TTL より小さいので 0.0 は使えない)
+    fetched_at: float | None = None
 
 
 class EpgSource:
@@ -154,13 +155,14 @@ class EpgSource:
 
     async def get(self) -> EpgSnapshot:
         async with self.lock:
-            if time.monotonic() - self.snapshot.fetched_at < self.config.epg_cache_ttl:
+            fetched_at = self.snapshot.fetched_at
+            if fetched_at is not None and time.monotonic() - fetched_at < self.config.epg_cache_ttl:
                 return self.snapshot
             try:
                 self.snapshot = await self._fetch()
             except Exception:
                 # 取得に失敗しても、古いキャッシュがあればそれを返す
-                if self.snapshot.fetched_at == 0.0:
+                if fetched_at is None:
                     raise
                 log.exception("Failed to refresh EPG from mirakc, using stale cache")
             return self.snapshot
