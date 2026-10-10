@@ -10,28 +10,50 @@
   <https://github.com/eggplants/edcb-bridge/actions/workflows/ci.yml>
 )
 
+[![ghcr size](
+  <https://ghcr-badge.egpl.dev/eggplants/edcb-bridge/size>
+)](
+  <https://github.com/eggplants/edcb-bridge/pkgs/container/edcb-bridge>
+)
+
 KonomiTV の EDCB バックエンド向け録画予約機能を、**EPGStation** または **mirakc** で使えるようにする中間サーバー。
 
-## KonomiTV の設定 (`config.yaml`)
+[English](README.md)
 
-```yaml
-general:
-  backend: EDCB
-  # ライブ視聴は mirakc から直接受信する (必須)
-  always_receive_tv_from_mirakurun: true
-  edcb_url: tcp://127.0.0.1:4510/
-  mirakurun_url: http://127.0.0.1:40772/
+## インストール
+
+```bash
+# mise (GitHub Release)
+mise use -g github:eggplants/edcb-bridge
+
+# mise (pipx)
+mise use -g pipx:edcb-bridge
+
+# pipx
+pipx install edcb-bridge
+
+# pip
+pip install edcb-bridge
 ```
 
-変更後に KonomiTV を再起動する (`sudo pm2 restart KonomiTV`)。
+### Docker
 
-## 起動 (docker compose)
+```bash
+docker pull ghcr.io/eggplants/edcb-bridge
+
+docker run -d -p 4510:4510 \
+  -e MIRAKC_URL=http://192.168.1.10:40772 \
+  -e EPGSTATION_URL=http://192.168.1.10:8888 \
+  ghcr.io/eggplants/edcb-bridge
+```
+
+#### docker compose
 
 [`setup_mirakc_and_epgs_on_nanopi.sh`](https://gist.github.com/eggplants/afaa31d65a1603f4868c0c400d7d5430) では `~/_tv/compose.yaml` の `services:` に追加する。
 
 ```yaml
   edcb-bridge:
-    build: ./edcb-bridge
+    image: ghcr.io/eggplants/edcb-bridge:0.0
     container_name: edcb-bridge
     restart: unless-stopped
     ports:
@@ -48,11 +70,49 @@ general:
 ```
 
 ```sh
-docker compose up -d --build edcb-bridge
+docker compose up -d edcb-bridge
 docker compose logs -f edcb-bridge
 ```
 
-## 環境変数
+## CLI
+
+```shellsession
+$ edcb-bridge --help
+usage: edcb-bridge [-h] [--listen-host LISTEN_HOST] [--listen-port LISTEN_PORT] [--mirakc-url MIRAKC_URL]
+                   [--recorder {epgstation,mirakc}] [--epgstation-url EPGSTATION_URL] [--recorded-dir RECORDED_DIR]
+                   [--mirakc-content-path-template MIRAKC_CONTENT_PATH_TEMPLATE] [--start-margin START_MARGIN]
+                   [--end-margin END_MARGIN] [--epg-cache-ttl EPG_CACHE_TTL] [--http-timeout HTTP_TIMEOUT]
+                   [--log-level {DEBUG,INFO,WARNING,ERROR}] [-V]
+
+EDCB (EpgTimerSrv) CtrlCmd compatible bridge to EPGStation / mirakc for KonomiTV.
+
+Every option can also be given by the environment variable shown in brackets.
+
+options:
+  -h, --help                            show this help message and exit
+  --listen-host LISTEN_HOST             address to listen on for CtrlCmd [LISTEN_HOST] (default: 0.0.0.0)
+  --listen-port LISTEN_PORT             port to listen on for CtrlCmd [LISTEN_PORT] (default: 4510)
+  --mirakc-url MIRAKC_URL               mirakc (or Mirakurun) URL to read services and programs from [MIRAKC_URL]
+                                        (default: http://127.0.0.1:40772)
+  --recorder {epgstation,mirakc}        recording backend [RECORDER] (default: epgstation)
+  --epgstation-url EPGSTATION_URL       EPGStation URL (recorder=epgstation) [EPGSTATION_URL] (default:
+                                        http://127.0.0.1:8888)
+  --recorded-dir RECORDED_DIR           recording folder as seen by KonomiTV [RECORDED_DIR] (default:
+                                        /mnt/hdd1/recorded)
+  --mirakc-content-path-template MIRAKC_CONTENT_PATH_TEMPLATE
+                                        recorded file name (recorder=mirakc) [MIRAKC_CONTENT_PATH_TEMPLATE] (default:
+                                        {start:%Y%m%d%H%M}_{sid}_{title}.m2ts)
+  --start-margin START_MARGIN           start margin in seconds shown in KonomiTV (display only) [START_MARGIN]
+                                        (default: 0)
+  --end-margin END_MARGIN               end margin in seconds shown in KonomiTV (display only) [END_MARGIN] (default: 0)
+  --epg-cache-ttl EPG_CACHE_TTL         seconds to cache the program guide [EPG_CACHE_TTL] (default: 60.0)
+  --http-timeout HTTP_TIMEOUT           HTTP timeout in seconds [HTTP_TIMEOUT] (default: 20.0)
+  --log-level {DEBUG,INFO,WARNING,ERROR}
+                                        log level [LOG_LEVEL] (default: INFO)
+  -V, --version                         show program's version number and exit
+```
+
+### 環境変数
 
 | 変数 | 既定値 | 説明 |
 | --- | --- | --- |
@@ -64,7 +124,21 @@ docker compose logs -f edcb-bridge
 | `MIRAKC_CONTENT_PATH_TEMPLATE` | `{start:%Y%m%d%H%M}_{sid}_{title}.m2ts` | `RECORDER=mirakc` 時のファイル名 (`{start}` `{onid}` `{sid}` `{eid}` `{title}`) |
 | `START_MARGIN` / `END_MARGIN` | `0` | KonomiTV の録画設定画面に表示するマージン (表示のみ) |
 | `EPG_CACHE_TTL` | `60` | 番組情報キャッシュ秒数 |
+| `HTTP_TIMEOUT` | `20` | HTTP タイムアウト秒数 |
 | `LOG_LEVEL` | `INFO` | `DEBUG` で全コマンドをログ出力 |
+
+## KonomiTV の設定 (`config.yaml`)
+
+```yaml
+general:
+  backend: EDCB
+  # ライブ視聴は mirakc から直接受信する (必須)
+  always_receive_tv_from_mirakurun: true
+  edcb_url: tcp://127.0.0.1:4510/
+  mirakurun_url: http://127.0.0.1:40772/
+```
+
+変更後に KonomiTV を再起動する (`sudo pm2 restart KonomiTV`)。
 
 ## mirakc を録画バックエンドにする場合
 
@@ -99,5 +173,5 @@ recording:
 ## License
 
 [MIT License](
-  <https://github.com/eggplants/edcb-bridge/blob/HEAD/LICENSE.txt>
+  <https://github.com/eggplants/edcb-bridge/blob/master/LICENSE.txt>
 )
