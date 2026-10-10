@@ -25,9 +25,9 @@
             <ul>
   <li><a href="#edcb-bridge">edcb-bridge</a>
   <ul>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#cli">CLI</a></li>
     <li><a href="#konomitv-configuration-configyaml">KonomiTV configuration (<code>config.yaml</code>)</a></li>
-    <li><a href="#running-docker-compose">Running (docker compose)</a></li>
-    <li><a href="#environment-variables">Environment variables</a></li>
     <li><a href="#using-mirakc-as-the-recording-backend">Using mirakc as the recording backend</a></li>
     <li><a href="#limitations">Limitations</a></li>
     <li><a href="#license">License</a></li>
@@ -68,33 +68,52 @@ edcb_bridge    </h1>
 "><img src="https://github.com/eggplants/edcb-bridge/actions/workflows/ci.yml/badge.svg
   " alt="CI" /></a></p>
 
-<p><a href="README.ja.md">日本語</a></p>
+<p><a href="https://github.com/eggplants/edcb-bridge/pkgs/container/edcb-bridge
+"><img src="https://ghcr-badge.egpl.dev/eggplants/edcb-bridge/size
+" alt="ghcr size" /></a></p>
 
 <p>A bridge server that lets KonomiTV's recording reservation features for the EDCB backend work with
 <strong>EPGStation</strong> or <strong>mirakc</strong>.</p>
 
-<h2 id="konomitv-configuration-configyaml">KonomiTV configuration (<code>config.yaml</code>)</h2>
+<p><a href="README.ja.md">日本語</a></p>
+
+<h2 id="installation">Installation</h2>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="nt">general</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">EDCB</span>
-<span class="w">  </span><span class="c1"># Live viewing is received directly from mirakc (required)</span>
-<span class="w">  </span><span class="nt">always_receive_tv_from_mirakurun</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">edcb_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tcp://127.0.0.1:4510/</span>
-<span class="w">  </span><span class="nt">mirakurun_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://127.0.0.1:40772/</span>
+<pre><span></span><code><span class="c1"># mise via github release</span>
+mise<span class="w"> </span>use<span class="w"> </span>-g<span class="w"> </span>github:eggplants/edcb-bridge
+
+<span class="c1"># mise via pipx</span>
+mise<span class="w"> </span>use<span class="w"> </span>-g<span class="w"> </span>pipx:edcb-bridge
+
+<span class="c1"># pipx</span>
+pipx<span class="w"> </span>install<span class="w"> </span>edcb-bridge
+
+<span class="c1"># pip</span>
+pip<span class="w"> </span>install<span class="w"> </span>edcb-bridge
 </code></pre>
 </div>
 
-<p>Restart KonomiTV after making changes (<code>sudo pm2 restart KonomiTV</code>).</p>
+<h3 id="docker">Docker</h3>
 
-<h2 id="running-docker-compose">Running (docker compose)</h2>
+<div class="pdoc-code codehilite">
+<pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/eggplants/edcb-bridge
+
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">4510</span>:4510<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">MIRAKC_URL</span><span class="o">=</span>http://192.168.1.10:40772<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">EPGSTATION_URL</span><span class="o">=</span>http://192.168.1.10:8888<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ghcr.io/eggplants/edcb-bridge
+</code></pre>
+</div>
+
+<h4 id="docker-compose">docker compose</h4>
 
 <p>With <a href="https://gist.github.com/eggplants/afaa31d65a1603f4868c0c400d7d5430"><code>setup_mirakc_and_epgs_on_nanopi.sh</code></a>,
 add the following under <code>services:</code> in <code>~/_tv/compose.yaml</code>.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="w">  </span><span class="nt">edcb-bridge</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./edcb-bridge</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/eggplants/edcb-bridge:0.0</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edcb-bridge</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
@@ -112,12 +131,49 @@ add the following under <code>services:</code> in <code>~/_tv/compose.yaml</code
 </div>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>edcb-bridge
+<pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>edcb-bridge
 docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>edcb-bridge
 </code></pre>
 </div>
 
-<h2 id="environment-variables">Environment variables</h2>
+<h2 id="cli">CLI</h2>
+
+<pre><code>$ edcb-bridge --help
+usage: edcb-bridge [-h] [--listen-host LISTEN_HOST] [--listen-port LISTEN_PORT] [--mirakc-url MIRAKC_URL]
+                   [--recorder {epgstation,mirakc}] [--epgstation-url EPGSTATION_URL] [--recorded-dir RECORDED_DIR]
+                   [--mirakc-content-path-template MIRAKC_CONTENT_PATH_TEMPLATE] [--start-margin START_MARGIN]
+                   [--end-margin END_MARGIN] [--epg-cache-ttl EPG_CACHE_TTL] [--http-timeout HTTP_TIMEOUT]
+                   [--log-level {DEBUG,INFO,WARNING,ERROR}] [-V]
+
+EDCB (EpgTimerSrv) CtrlCmd compatible bridge to EPGStation / mirakc for KonomiTV.
+
+Every option can also be given by the environment variable shown in brackets.
+
+options:
+  -h, --help                            show this help message and exit
+  --listen-host LISTEN_HOST             address to listen on for CtrlCmd [LISTEN_HOST] (default: 0.0.0.0)
+  --listen-port LISTEN_PORT             port to listen on for CtrlCmd [LISTEN_PORT] (default: 4510)
+  --mirakc-url MIRAKC_URL               mirakc (or Mirakurun) URL to read services and programs from [MIRAKC_URL]
+                                        (default: http://127.0.0.1:40772)
+  --recorder {epgstation,mirakc}        recording backend [RECORDER] (default: epgstation)
+  --epgstation-url EPGSTATION_URL       EPGStation URL (recorder=epgstation) [EPGSTATION_URL] (default:
+                                        http://127.0.0.1:8888)
+  --recorded-dir RECORDED_DIR           recording folder as seen by KonomiTV [RECORDED_DIR] (default:
+                                        /mnt/hdd1/recorded)
+  --mirakc-content-path-template MIRAKC_CONTENT_PATH_TEMPLATE
+                                        recorded file name (recorder=mirakc) [MIRAKC_CONTENT_PATH_TEMPLATE] (default:
+                                        {start:%Y%m%d%H%M}_{sid}_{title}.m2ts)
+  --start-margin START_MARGIN           start margin in seconds shown in KonomiTV (display only) [START_MARGIN]
+                                        (default: 0)
+  --end-margin END_MARGIN               end margin in seconds shown in KonomiTV (display only) [END_MARGIN] (default: 0)
+  --epg-cache-ttl EPG_CACHE_TTL         seconds to cache the program guide [EPG_CACHE_TTL] (default: 60.0)
+  --http-timeout HTTP_TIMEOUT           HTTP timeout in seconds [HTTP_TIMEOUT] (default: 20.0)
+  --log-level {DEBUG,INFO,WARNING,ERROR}
+                                        log level [LOG_LEVEL] (default: INFO)
+  -V, --version                         show program's version number and exit
+</code></pre>
+
+<h3 id="environment-variables">Environment variables</h3>
 
 <table>
 <thead>
@@ -169,12 +225,31 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
   <td>Program information cache lifetime in seconds</td>
 </tr>
 <tr>
+  <td><code>HTTP_TIMEOUT</code></td>
+  <td><code>20</code></td>
+  <td>HTTP timeout in seconds</td>
+</tr>
+<tr>
   <td><code>LOG_LEVEL</code></td>
   <td><code>INFO</code></td>
   <td><code>DEBUG</code> logs every command</td>
 </tr>
 </tbody>
 </table>
+
+<h2 id="konomitv-configuration-configyaml">KonomiTV configuration (<code>config.yaml</code>)</h2>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="nt">general</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">EDCB</span>
+<span class="w">  </span><span class="c1"># Live viewing is received directly from mirakc (required)</span>
+<span class="w">  </span><span class="nt">always_receive_tv_from_mirakurun</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">edcb_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tcp://127.0.0.1:4510/</span>
+<span class="w">  </span><span class="nt">mirakurun_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://127.0.0.1:40772/</span>
+</code></pre>
+</div>
+
+<p>Restart KonomiTV after making changes (<code>sudo pm2 restart KonomiTV</code>).</p>
 
 <h2 id="using-mirakc-as-the-recording-backend">Using mirakc as the recording backend</h2>
 
@@ -222,7 +297,7 @@ name (<code>BS15_1</code> / <code>CS4</code>) for BS/CS</li>
 
 <h2 id="license">License</h2>
 
-<p><a href="https://github.com/eggplants/edcb-bridge/blob/HEAD/LICENSE.txt
+<p><a href="https://github.com/eggplants/edcb-bridge/blob/master/LICENSE.txt
 ">MIT License</a></p>
 </div>
 
