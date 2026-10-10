@@ -1,0 +1,121 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling", "uv-dynamic-versioning" ]
+
+[project]
+name = "edcb-bridge"
+description = "EDCB (EpgTimerSrv) CtrlCmd compatible bridge to EPGStation / mirakc for KonomiTV"
+readme = "README.md"
+keywords = [
+  "bridge",
+  "cli",
+  "epgstation",
+  "konomitv",
+  "mirakc",
+  "tv",
+]
+license = { text = "MIT" }
+authors = [ { name = "eggplants", email = "w10776e8w@yahoo.co.jp" } ]
+requires-python = ">=3.11"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Typing :: Typed",
+]
+dynamic = [ "version" ]
+dependencies = [
+  "httpx>=0.28.1",
+]
+urls.Documentation = "https://eggplants.github.io/edcb-bridge/"
+urls.Issues = "https://github.com/eggplants/edcb-bridge/issues"
+urls.Repository = "https://github.com/eggplants/edcb-bridge"
+scripts.edcb-bridge = "edcb_bridge.cli:main"
+
+[dependency-groups]
+dev = [
+  "aiofiles>=25.1",
+  "jsonschema>=4.26",
+  "pydantic-core>=2.49",
+  "pymarkdownlnt>=0.9.40",
+  "pyproject-fmt-py>=0",
+  "pytest>=9.1.1",
+  "pytest-asyncio>=1.4",
+  "pytest-cov>=7",
+]
+docs = [
+  "pdoc>=16",
+]
+
+[tool.hatch]
+version.source = "uv-dynamic-versioning"
+build.targets.wheel.packages = [ "edcb_bridge" ]
+build.targets.sdist.packages = [ "edcb_bridge" ]
+
+[tool.uv]
+python-downloads = "never"
+default-groups = [
+  "dev",
+  "docs",
+]
+exclude-newer = "P7D"
+# Own package: no cooldown needed.
+exclude-newer-package = { pyproject-fmt-py = "P0D" }
+preview = true
+
+[tool.ruff]
+line-length = 120
+# Vendored KonomiTV sources, kept verbatim.
+extend-exclude = [ "tests/fixtures/" ]
+format.indent-style = "space"
+format.quote-style = "double"
+lint.select = [ "ALL" ]
+lint.ignore = [
+  "COM812",
+  "CPY001", # License lives in LICENSE.txt
+  "D",
+  "RUF001", # Full-width characters are intentional: broadcast (ARIB) text is Japanese
+  "RUF002", # Same as RUF001, in docstrings
+  "RUF003", # Same as RUF001, in comments
+]
+lint.per-file-ignores."edcb_bridge/backends/*.py" = [
+  "ANN401", # EPGStation / mirakc responses are untyped JSON
+  "ARG002", # Overrides keep the RecorderBackend interface even when an argument is not needed
+]
+lint.per-file-ignores."edcb_bridge/cli.py" = [
+  "T201", # `print` found
+]
+lint.per-file-ignores."edcb_bridge/server.py" = [
+  "ARG002", # Every CtrlCmd handler takes the request reader, even when the command has no payload
+]
+lint.per-file-ignores."packaging/entrypoint.py" = [
+  "INP001", # Implicit namespace package (frozen entry point, not importable content)
+]
+lint.per-file-ignores."tests/**" = [
+  "ANN",     # Missing type annotations (tests/fixtures)
+  "ARG",     # Unused arguments (pytest fixtures, lambda stubs)
+  "CPY001",  # Missing copyright notice
+  "INP001",  # Implicit namespace package (no __init__ in tests)
+  "PLR2004", # Magic value used in comparison
+  "S101",    # Use of assert detected
+]
+lint.pydocstyle.convention = "google"
+
+[tool.ty]
+src.exclude = [ "tests/fixtures/" ]
+
+[tool.pytest]
+asyncio_mode = "auto"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "semver"
+fallback-version = "0.0.0"
