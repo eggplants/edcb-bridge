@@ -27,7 +27,7 @@
   <ul>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#cli">CLI</a></li>
-    <li><a href="#konomitv-configuration-configyaml">KonomiTV configuration (<code>config.yaml</code>)</a></li>
+    <li><a href="#konomitv-configuration">KonomiTV configuration</a></li>
     <li><a href="#using-mirakc-as-the-recording-backend">Using mirakc as the recording backend</a></li>
     <li><a href="#limitations">Limitations</a></li>
     <li><a href="#license">License</a></li>
@@ -72,10 +72,8 @@ edcb_bridge    </h1>
 "><img src="https://ghcr-badge.egpl.dev/eggplants/edcb-bridge/size
 " alt="ghcr size" /></a></p>
 
-<p>A bridge server that lets KonomiTV's recording reservation features for the EDCB backend work with
-<strong>EPGStation</strong> or <strong>mirakc</strong>.</p>
-
-<p><a href="README.ja.md">日本語</a></p>
+<p>A bridge server that lets <a href="https://github.com/tsukumijima/KonomiTV">KonomiTV</a>'s recording reservation features for the <a href="https://github.com/xtne6f/EDCB">EDCB</a> backend work with
+<a href="https://github.com/l3tnun/EPGStation">EPGStation</a> or <a href="https://github.com/mirakc/mirakc">mirakc</a>.</p>
 
 <h2 id="installation">Installation</h2>
 
@@ -108,12 +106,15 @@ docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </sp
 
 <h4 id="docker-compose">docker compose</h4>
 
-<p>With <a href="https://gist.github.com/eggplants/afaa31d65a1603f4868c0c400d7d5430"><code>setup_mirakc_and_epgs_on_nanopi.sh</code></a>,
-add the following under <code>services:</code> in <code>~/_tv/compose.yaml</code>.</p>
+<p>See: <a href="https://github.com/eggplants/setup-nanopi/blob/master/compose/compose.yaml">https://github.com/eggplants/setup-nanopi/blob/master/compose/compose.yaml</a></p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="w">  </span><span class="nt">edcb-bridge</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/eggplants/edcb-bridge:0.0</span>
+<pre><span></span><code><span class="c1"># docker compose up -d edcb-bridge</span>
+<span class="c1"># docker compose logs -f edcb-bridge</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">edcb-bridge</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># https://github.com/eggplants/edcb-bridge/pkgs/container/edcb-bridge</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/eggplants/edcb-bridge</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edcb-bridge</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
@@ -121,22 +122,28 @@ add the following under <code>services:</code> in <code>~/_tv/compose.yaml</code
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">TZ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Tokyo</span>
 <span class="w">      </span><span class="nt">MIRAKC_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://mirakc:40772</span>
-<span class="w">      </span><span class="nt">RECORDER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">epgstation</span><span class="w">            </span><span class="c1"># epgstation | mirakc</span>
+<span class="w">      </span><span class="nt">RECORDER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">epgstation</span>
 <span class="w">      </span><span class="nt">EPGSTATION_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://epgstation:8888</span>
-<span class="w">      </span><span class="nt">RECORDED_DIR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/mnt/hdd1/recorded</span><span class="w">  </span><span class="c1"># recording folder as seen from KonomiTV</span>
+<span class="w">      </span><span class="nt">RECORDED_DIR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/mnt/hdd1/recorded</span>
 <span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mirakc</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">epgstation</span>
 </code></pre>
 </div>
 
+<h2 id="cli">CLI</h2>
+
 <div class="pdoc-code codehilite">
-<pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>edcb-bridge
-docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>edcb-bridge
+<pre><span></span><code>edcb-bridge<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--listen-port<span class="w"> </span><span class="m">4510</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mirakc-url<span class="w"> </span>http://192.168.1.10:40772<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--epgstation-url<span class="w"> </span>http://192.168.1.10:8888<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--recorder<span class="w"> </span>epgstation<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--recorded-dir<span class="w"> </span>/mnt/hdd1/recorded
 </code></pre>
 </div>
 
-<h2 id="cli">CLI</h2>
+<p><details><summary>Help</summary>summary></p>
 
 <pre><code>$ edcb-bridge --help
 usage: edcb-bridge [-h] [--listen-host LISTEN_HOST] [--listen-port LISTEN_PORT] [--mirakc-url MIRAKC_URL]
@@ -172,6 +179,8 @@ options:
                                         log level [LOG_LEVEL] (default: INFO)
   -V, --version                         show program's version number and exit
 </code></pre>
+
+<p></details></p>
 
 <h3 id="environment-variables">Environment variables</h3>
 
@@ -237,23 +246,22 @@ options:
 </tbody>
 </table>
 
-<h2 id="konomitv-configuration-configyaml">KonomiTV configuration (<code>config.yaml</code>)</h2>
+<h2 id="konomitv-configuration">KonomiTV configuration</h2>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="nt">general</span><span class="p">:</span>
+<pre><span></span><code><span class="c1"># by default located in: /opt/KonomiTV/config.yaml</span>
+<span class="c1"># restart pm2 service after changed: sudo pm2 restart KonomiTV</span>
+<span class="nt">general</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">EDCB</span>
-<span class="w">  </span><span class="c1"># Live viewing is received directly from mirakc (required)</span>
 <span class="w">  </span><span class="nt">always_receive_tv_from_mirakurun</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">edcb_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tcp://127.0.0.1:4510/</span>
 <span class="w">  </span><span class="nt">mirakurun_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://127.0.0.1:40772/</span>
 </code></pre>
 </div>
 
-<p>Restart KonomiTV after making changes (<code>sudo pm2 restart KonomiTV</code>).</p>
-
 <h2 id="using-mirakc-as-the-recording-backend">Using mirakc as the recording backend</h2>
 
-<p>Add the recording settings to mirakc's <code>config.yml</code> and mount the recording folder.</p>
+<p>Add the recording settings to <a href="https://mirakc.github.io/dekiru-mirakc/v3/config/recording.html">mirakc's <code>config.yml</code></a> and mount the recording folder.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="nt">recording</span><span class="p">:</span>
