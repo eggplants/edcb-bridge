@@ -16,10 +16,8 @@
   <https://github.com/eggplants/edcb-bridge/pkgs/container/edcb-bridge>
 )
 
-A bridge server that lets KonomiTV's recording reservation features for the EDCB backend work with
-**EPGStation** or **mirakc**.
-
-[日本語](README.ja.md)
+A bridge server that lets [KonomiTV](https://github.com/tsukumijima/KonomiTV)'s recording reservation features for the [EDCB](https://github.com/xtne6f/EDCB) backend work with
+[EPGStation](https://github.com/l3tnun/EPGStation) or [mirakc](https://github.com/mirakc/mirakc).
 
 ## Installation
 
@@ -50,12 +48,15 @@ docker run -d -p 4510:4510 \
 
 #### docker compose
 
-With [`setup_mirakc_and_epgs_on_nanopi.sh`](https://gist.github.com/eggplants/afaa31d65a1603f4868c0c400d7d5430),
-add the following under `services:` in `~/_tv/compose.yaml`.
+See: <https://github.com/eggplants/setup-nanopi/blob/master/compose/compose.yaml>
 
 ```yaml
+# docker compose up -d edcb-bridge
+# docker compose logs -f edcb-bridge
+services:
   edcb-bridge:
-    image: ghcr.io/eggplants/edcb-bridge:0.0
+    # https://github.com/eggplants/edcb-bridge/pkgs/container/edcb-bridge
+    image: ghcr.io/eggplants/edcb-bridge
     container_name: edcb-bridge
     restart: unless-stopped
     ports:
@@ -63,20 +64,26 @@ add the following under `services:` in `~/_tv/compose.yaml`.
     environment:
       TZ: Asia/Tokyo
       MIRAKC_URL: http://mirakc:40772
-      RECORDER: epgstation            # epgstation | mirakc
+      RECORDER: epgstation
       EPGSTATION_URL: http://epgstation:8888
-      RECORDED_DIR: /mnt/hdd1/recorded  # recording folder as seen from KonomiTV
+      RECORDED_DIR: /mnt/hdd1/recorded
     depends_on:
       - mirakc
       - epgstation
 ```
 
-```sh
-docker compose up -d edcb-bridge
-docker compose logs -f edcb-bridge
+## CLI
+
+```bash
+edcb-bridge \
+  --listen-port 4510 \
+  --mirakc-url http://192.168.1.10:40772 \
+  --epgstation-url http://192.168.1.10:8888 \
+  --recorder epgstation \
+  --recorded-dir /mnt/hdd1/recorded
 ```
 
-## CLI
+<details><summary>Help</summary>summary>
 
 ```shellsession
 $ edcb-bridge --help
@@ -114,6 +121,8 @@ options:
   -V, --version                         show program's version number and exit
 ```
 
+</details>
+
 ### Environment variables
 
 | Variable | Default | Description |
@@ -129,22 +138,21 @@ options:
 | `HTTP_TIMEOUT` | `20` | HTTP timeout in seconds |
 | `LOG_LEVEL` | `INFO` | `DEBUG` logs every command |
 
-## KonomiTV configuration (`config.yaml`)
+## KonomiTV configuration
 
 ```yaml
+# by default located in: /opt/KonomiTV/config.yaml
+# restart pm2 service after changed: sudo pm2 restart KonomiTV
 general:
   backend: EDCB
-  # Live viewing is received directly from mirakc (required)
   always_receive_tv_from_mirakurun: true
   edcb_url: tcp://127.0.0.1:4510/
   mirakurun_url: http://127.0.0.1:40772/
 ```
 
-Restart KonomiTV after making changes (`sudo pm2 restart KonomiTV`).
-
 ## Using mirakc as the recording backend
 
-Add the recording settings to mirakc's `config.yml` and mount the recording folder.
+Add the recording settings to [mirakc's `config.yml`](https://mirakc.github.io/dekiru-mirakc/v3/config/recording.html) and mount the recording folder.
 
 ```yaml
 recording:
