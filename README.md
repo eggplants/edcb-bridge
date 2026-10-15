@@ -17,7 +17,7 @@
 )
 
 A bridge server that lets [KonomiTV](https://github.com/tsukumijima/KonomiTV)'s recording reservation features for the [EDCB](https://github.com/xtne6f/EDCB) backend work with
-[EPGStation](https://github.com/l3tnun/EPGStation) or [mirakc](https://github.com/mirakc/mirakc).
+[EPGStation](https://github.com/l3tnun/EPGStation) (v2 / v3) or [mirakc](https://github.com/mirakc/mirakc).
 
 ## Installation
 
@@ -184,7 +184,7 @@ reflected in `contentPath`.
 - **mirakc**: Only program-based reservations are supported (time-based reservations, automatic reservations,
   and changing settings are not supported; disabling is treated as deletion)
 - mirakc does not return the TSID, so it is derived from the NID for terrestrial channels and from the channel
-  name (`BS15_1` / `CS4`) for BS/CS
+  name (`BS15_1` / `CS4`) for BS/CS (it cannot be derived for other channel types such as BS4K)
 - Past programs (`EnumPgArc`), recorded information (`EnumRecInfo`), and station logos return empty results
   (KonomiTV falls back to its bundled logos)
 

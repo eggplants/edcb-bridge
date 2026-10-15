@@ -30,7 +30,11 @@ if TYPE_CHECKING:
 
 CtrlCmdUtil = load_ctrlcmdutil()
 
-OPENAPI = json.loads((Path(__file__).parent / "fixtures" / "epgstation-openapi.json").read_text())
+# リクエストボディは対応する EPGStation の全バージョン (v2 / v3) の定義を満たす必要がある
+OPENAPI_SPECS = [
+    json.loads((Path(__file__).parent / "fixtures" / f"epgstation-{version}-openapi.json").read_text())
+    for version in ("v2", "v3")
+]
 
 NOW_MS = int(dt.datetime.now(JST).timestamp() * 1000)
 HOUR_MS = 3600 * 1000
@@ -107,9 +111,10 @@ PROGRAMS: list[dict[str, Any]] = [
 
 
 def validate(schema_name: str, body: Any) -> None:
-    """EPGStation の OpenAPI 定義でリクエストボディを検証する"""
-    schema = {"$ref": f"#/components/schemas/{schema_name}", "components": OPENAPI["components"]}
-    jsonschema.Draft7Validator(schema).validate(body)
+    """EPGStation (v2 / v3) の OpenAPI 定義でリクエストボディを検証する"""
+    for spec in OPENAPI_SPECS:
+        schema = {"$ref": f"#/components/schemas/{schema_name}", "components": spec["components"]}
+        jsonschema.Draft7Validator(schema).validate(body)
 
 
 def strip_parent_directory(save_option: dict | None) -> dict:

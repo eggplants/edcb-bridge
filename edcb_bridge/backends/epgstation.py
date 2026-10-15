@@ -1,5 +1,5 @@
 """
-EPGStation (v2) を録画バックエンドとして使う
+EPGStation (v2 / v3) を録画バックエンドとして使う
 
 - EDCB の録画予約 (ReserveData)  <-> EPGStation の予約 (/api/reserves)
 - EDCB の自動予約 (AutoAddData)  <-> EPGStation のルール (/api/rules)
