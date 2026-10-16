@@ -48,7 +48,7 @@ docker run -d -p 4510:4510 \
 
 #### docker compose
 
-See: <https://github.com/eggplants/setup-nanopi/blob/master/compose/compose.yaml>
+See: <https://github.com/eggplants/mb/blob/main/compose/compose.yaml>
 
 ```yaml
 # docker compose up -d edcb-bridge
@@ -83,7 +83,7 @@ edcb-bridge \
   --recorded-dir /mnt/hdd1/recorded
 ```
 
-<details><summary>Help</summary>summary>
+<details><summary>Help</summary>
 
 ```shellsession
 $ edcb-bridge --help
@@ -123,7 +123,7 @@ options:
 
 </details>
 
-### Environment variables
+<details><summary>Environment variables</summary>
 
 | Variable | Default | Description |
 | --- | --- | --- |
@@ -137,6 +137,8 @@ options:
 | `EPG_CACHE_TTL` | `60` | Program information cache lifetime in seconds |
 | `HTTP_TIMEOUT` | `20` | HTTP timeout in seconds |
 | `LOG_LEVEL` | `INFO` | `DEBUG` logs every command |
+
+</details>
 
 ## KonomiTV configuration
 
