@@ -183,9 +183,10 @@ reflected in `contentPath`.
   - Day-of-week and time ranges are rounded to whole hours
   - Only subfolders under `RECORDED_DIR` can be used as the destination. File name templates are passed through
     as-is in EPGStation's `recordedFormat` syntax (e.g. `%TITLE%`)
-- **mirakc**: Only program-based reservations are supported (time-based reservations, automatic reservations,
+- **mirakc**
+  - Only program-based reservations are supported (time-based reservations, automatic reservations,
   and changing settings are not supported; disabling is treated as deletion)
-- mirakc does not return the TSID, so it is derived from the NID for terrestrial channels and from the channel
+  - mirakc does not return the TSID, so it is derived from the NID for terrestrial channels and from the channel
   name (`BS15_1` / `CS4`) for BS/CS (it cannot be derived for other channel types such as BS4K)
 - Past programs (`EnumPgArc`), recorded information (`EnumRecInfo`), and station logos return empty results
   (KonomiTV falls back to its bundled logos)
