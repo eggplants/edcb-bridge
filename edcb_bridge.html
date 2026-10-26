@@ -297,10 +297,13 @@ field</li>
 <li>Only subfolders under <code>RECORDED_DIR</code> can be used as the destination. File name templates are passed through
 as-is in EPGStation's <code>recordedFormat</code> syntax (e.g. <code>%TITLE%</code>)</li>
 </ul></li>
-<li><strong>mirakc</strong>: Only program-based reservations are supported (time-based reservations, automatic reservations,
+<li><strong>mirakc</strong>
+<ul>
+<li>Only program-based reservations are supported (time-based reservations, automatic reservations,
 and changing settings are not supported; disabling is treated as deletion)</li>
 <li>mirakc does not return the TSID, so it is derived from the NID for terrestrial channels and from the channel
 name (<code>BS15_1</code> / <code>CS4</code>) for BS/CS (it cannot be derived for other channel types such as BS4K)</li>
+</ul></li>
 <li>Past programs (<code>EnumPgArc</code>), recorded information (<code>EnumRecInfo</code>), and station logos return empty results
 (KonomiTV falls back to its bundled logos)</li>
 </ul>
