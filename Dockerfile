@@ -1,4 +1,4 @@
-FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS builder
+FROM python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966 AS builder
 
 ARG VERSION
 ENV VERSION=${VERSION:-master}
@@ -10,7 +10,7 @@ RUN python -m venv /opt/venv
 RUN /opt/venv/bin/pip install --no-cache-dir \
     "git+https://github.com/eggplants/edcb-bridge@${VERSION}"
 
-FROM al3xos/python-distroless:3.14-debian13@sha256:5ae3f2e81e56307ba2548f34c216f52c58c2d1dcfd33646c3609189612fe8a72
+FROM al3xos/python-distroless:3.14-debian13@sha256:50cd18df84d641ef78a2ad67d3aa0744ba726ff3c8e401f7b8d5bf8a4587e606
 COPY --from=builder /opt/venv /opt/venv
 ENV PYTHONPATH="/opt/venv/lib/python3.14/site-packages"
 
